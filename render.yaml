@@ -19,12 +19,9 @@ services:
       - key: DATABASE_URL
         fromDatabase:
           name: chen-stocks-db
-          property: connectionURI
+          property: connectionString
       - key: FRONTEND_URL
-        fromService:
-          type: web
-          name: chen-stocks-ui
-          property: url
+        value: https://chen-stocks-ui.onrender.com
       - key: ALPHA_VANTAGE_API_KEY
         sync: false  # Set manually in Render dashboard
       - key: QUOTE_CACHE_TTL
@@ -44,7 +41,4 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: chen-stocks-api
-          property: url
+        value: https://chen-stocks-api.onrender.com
