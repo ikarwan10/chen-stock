@@ -22,8 +22,6 @@ services:
           property: connectionString
       - key: FRONTEND_URL
         value: https://chen-stocks-ui.onrender.com
-      - key: ALPHA_VANTAGE_API_KEY
-        sync: false  # Set manually in Render dashboard
       - key: QUOTE_CACHE_TTL
         value: "60"
     healthCheckPath: /api/health
