@@ -1,4 +1,4 @@
-# Investment Portfolio Tracker — Execution Plan
+# Chen's Stocks — Execution Plan
 
 **Document Version:** 1.0  
 **Date:** March 11, 2026  
@@ -161,9 +161,9 @@
 | Task # | Task | Owner | Depends On | MRD Refs | Done Criteria |
 |--------|------|-------|------------|----------|---------------|
 | S6-01 | Write user guide / README with setup instructions and screenshots | TL | S5-06 | — | Non-technical user can install and start the app following the guide |
-| S6-02 | Package application for distribution (installer or portable bundle) | TL, BE-1 | S5-06 | — | Single download; works on clean Windows machine |
+| S6-02 | Deploy to Render.com — backend Web Service, frontend Static Site, PostgreSQL database | TL, BE-1 | S5-06 | — | App live at Render URLs; health check passing; CI/CD on push to main |
 | S6-03 | Final stakeholder demo and sign-off | TL | S6-01, S6-02 | — | Stakeholder approves release |
-| S6-04 | Tag v1.0 release in Git; archive build artifacts | TL | S6-03 | — | Git tag created; artifacts stored |
+| S6-04 | Tag v1.0 release in Git; archive build artifacts | TL | S6-03 | — | Git tag created; Render deployment linked |
 
 **Sprint 6 Exit Criteria:** Application packaged, documented, demonstrated, and approved for release.
 
@@ -318,7 +318,7 @@ Before Sprint 0 can begin, the following decisions from the MRD open questions m
 | 1 | **Frontend tech stack** — Web (React) or Desktop (Electron / PyQt)? | Determines FE hiring/skills, packaging, and Sprint 0 setup. |
 | 2 | **Crypto support in MVP** — Yes or No? | If yes, adds validation complexity and different market hours handling. |
 | 3 | **Multi-account support** — Yes or No for MVP? | If yes, adds a data model layer (accounts table) in Sprint 0. |
-| 4 | **Deployment model** — Local-only app or self-hosted server? | Affects packaging (Sprint 6) and potential auth requirements. |
+| 4 | ~~**Deployment model**~~ — **RESOLVED: Render.com** (Web Service + Static Site + Managed PostgreSQL). render.yaml blueprint and Dockerfile created. | No longer blocks Sprint 0. |
 
 ---
 

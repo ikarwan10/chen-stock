@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chen's Stocks — UI Mockup</title>
+<style>
+  :root {
+    --bg: #0f1117; --card: #1a1d27; --border: #2a2d3a; --text: #e4e6ed; --muted: #8b8fa3;
+    --green: #22c55e; --green-bg: rgba(34,197,94,.12);
+    --red: #ef4444; --red-bg: rgba(239,68,68,.12);
+    --blue: #3b82f6; --blue-bg: rgba(59,130,246,.12);
+    --accent: #6366f1; --accent-bg: rgba(99,102,241,.12);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+  /* ── Proto banner ── */
+  .proto-banner{background:linear-gradient(90deg,var(--accent),#818cf8);text-align:center;padding:7px;font-size:12px;font-weight:700;letter-spacing:.3px;color:#fff;position:fixed;top:0;left:0;right:0;z-index:300}
+
+  /* ── Top Nav ── */
+  .topnav{display:flex;align-items:center;justify-content:space-between;padding:12px 32px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:30px;z-index:100}
+  .brand{font-size:22px;font-weight:700;letter-spacing:-.5px}
+  .brand span{color:var(--accent)}
+  .nav-links{display:flex;gap:4px}
+  .nav-links button{background:none;border:1px solid transparent;color:var(--muted);padding:8px 16px;border-radius:8px;font-size:14px;cursor:pointer;transition:.2s;font-family:inherit}
+  .nav-links button:hover,.nav-links button.active{color:var(--text);background:var(--accent-bg);border-color:var(--accent)}
+  .nav-right{display:flex;gap:10px;align-items:center}
+
+  /* ── Buttons ── */
+  .btn{padding:8px 18px;border-radius:8px;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:.2s;font-family:inherit}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:#5558e6}
+  .btn-outline{background:none;border:1px solid var(--border);color:var(--text)}
+  .btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-sm{padding:6px 12px;font-size:13px}
+  .btn-danger{background:var(--red);color:#fff}
+
+  /* ── Pages ── */
+  .page{display:none;padding:28px 32px;max-width:1400px;margin:30px auto 0}
+  .page.active{display:block}
+
+  /* ── Cards ── */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:16px}
+  .card-title{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+
+  /* ── Summary Row ── */
+  .summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+  .summary-card{text-align:center}
+  .summary-card .val{font-size:28px;font-weight:700}
+  .summary-card .label{font-size:12px;color:var(--muted);margin-top:4px}
+
+  /* ── Table ── */
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 12px;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);cursor:pointer}
+  th:hover{color:var(--text)}
+  td{padding:12px;border-bottom:1px solid var(--border)}
+  tr:hover td{background:rgba(99,102,241,.04)}
+  .ticker-sym{font-weight:700;color:var(--blue);cursor:pointer}
+  .ticker-sym:hover{text-decoration:underline}
+  .company{font-size:12px;color:var(--muted)}
+  .up{color:var(--green)}.down{color:var(--red)}
+  .tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+  .tag-up{background:var(--green-bg);color:var(--green)}
+  .tag-down{background:var(--red-bg);color:var(--red)}
+
+  /* ── Charts ── */
+  .chart-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;position:relative;overflow:hidden;margin-bottom:16px}
+  .chart-placeholder{height:260px;display:flex;align-items:flex-end;gap:2px;padding:0 10px}
+  .chart-bar{flex:1;border-radius:4px 4px 0 0;transition:.3s;min-width:3px}
+  svg.line-chart{width:100%;height:100%}
+
+  /* ── Time Range ── */
+  .time-range{display:flex;gap:4px;margin-bottom:16px}
+  .time-range button{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit}
+  .time-range button.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+
+  /* ── Modal ── */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center}
+  .modal-overlay.show{display:flex}
+  .modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;width:460px;max-width:92vw}
+  .modal h2{font-size:20px;margin-bottom:20px}
+  .form-group{margin-bottom:16px}
+  .form-group label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .form-group input{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px}
+  .form-group input:focus{outline:none;border-color:var(--accent)}
+  .form-hint{font-size:12px;color:var(--muted);margin-top:4px}
+  .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}
+
+  /* ── Status ── */
+  .status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+  .score-card{text-align:center;padding:16px;background:var(--bg);border-radius:10px}
+  .score-card .period{font-size:11px;color:var(--muted);text-transform:uppercase}
+  .score-card .score-val{font-size:22px;font-weight:700;margin:6px 0 2px}
+  .score-card .score-pct{font-size:13px}
+  .trend-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:24px;font-size:15px;font-weight:700}
+  .trend-improving{background:var(--green-bg);color:var(--green)}
+  .trend-declining{background:var(--red-bg);color:var(--red)}
+
+  /* ── Tx list ── */
+  .tx-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
+  .tx-type{font-size:12px;font-weight:600;padding:2px 8px;border-radius:4px}
+  .tx-buy{background:var(--green-bg);color:var(--green)}
+
+  /* ── Breakdown ── */
+  .breakdown-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}
+  .breakdown-bar{height:6px;border-radius:3px;margin-top:4px}
+
+  /* ── Empty State ── */
+  .empty-state{text-align:center;padding:80px 20px}
+  .empty-state .icon{font-size:64px;margin-bottom:16px}
+  .empty-state h2{font-size:24px;margin-bottom:8px}
+  .empty-state p{color:var(--muted);margin-bottom:24px;font-size:16px}
+
+  /* ── Delete Confirm ── */
+  .confirm-box{text-align:center}
+  .confirm-box p{margin:16px 0 24px;color:var(--muted)}
+  .confirm-box .ticker-big{font-size:32px;font-weight:700;color:var(--red)}
+
+  @media(max-width:900px){
+    .summary-row{grid-template-columns:repeat(2,1fr)}
+    .status-grid{grid-template-columns:repeat(2,1fr)}
+    .topnav{flex-wrap:wrap;gap:10px}
+  }
+</style>
+</head>
+<body>
+
+<!-- PROTOTYPE BANNER -->
+<div class="proto-banner">CHEN'S STOCKS — UI MOCKUP &bull; Interactive Prototype for Customer Review (No Live Data)</div>
+
+<!-- ═══════════════════════ TOP NAV ═══════════════════════ -->
+<nav class="topnav">
+  <div class="brand"><span>Chen's</span> Stocks</div>
+  <div class="nav-links">
+    <button class="active" onclick="showPage('dashboard')">Dashboard</button>
+    <button onclick="showPage('history')">Portfolio History</button>
+    <button onclick="showPage('status')">Financial Status</button>
+  </div>
+  <div class="nav-right">
+    <button class="btn btn-outline btn-sm" onclick="refreshQuotes()">&#x21bb; Refresh Quotes</button>
+    <button class="btn btn-primary btn-sm" onclick="openModal('add')">+ Add Ticker</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  PAGE 1: DASHBOARD                                     -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="page-dashboard" class="page active">
+
+  <!-- Summary Cards -->
+  <div class="summary-row">
+    <div class="card summary-card">
+      <div class="card-title">Total Invested</div>
+      <div class="val">$48,250.00</div>
+      <div class="label">Across 5 holdings</div>
+    </div>
+    <div class="card summary-card">
+      <div class="card-title">Market Value</div>
+      <div class="val">$54,832.50</div>
+      <div class="label">As of Mar 11, 2026 3:42 PM</div>
+    </div>
+    <div class="card summary-card">
+      <div class="card-title">Total Gain / Loss</div>
+      <div class="val up">+$6,582.50</div>
+      <div class="label up">+13.64%</div>
+    </div>
+    <div class="card summary-card">
+      <div class="card-title">Today's Change</div>
+      <div class="val up">+$312.40</div>
+      <div class="label up">+0.57%</div>
+    </div>
+  </div>
+
+  <!-- Holdings Table -->
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="card-title" style="margin:0">Your Holdings</div>
+      <input type="text" placeholder="Search tickers..." style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 14px;color:var(--text);font-size:13px;width:200px">
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Ticker</th><th>Shares</th><th style="text-align:right">Avg Cost</th><th style="text-align:right">Price</th>
+          <th style="text-align:right">Market Value</th><th style="text-align:right">Today</th>
+          <th style="text-align:right">Total Gain/Loss</th><th style="text-align:right">Return</th>
+          <th style="text-align:center">Status</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="ticker-sym" onclick="showPage('ticker-detail')">AAPL</span><br><span class="company">Apple Inc.</span></td>
+          <td>50</td>
+          <td style="text-align:right">$142.00</td><td style="text-align:right">$178.35</td>
+          <td style="text-align:right">$8,917.50</td>
+          <td style="text-align:right" class="up">+$82.50 (+0.93%)</td>
+          <td style="text-align:right" class="up">+$1,817.50</td>
+          <td style="text-align:right" class="up">+25.60%</td>
+          <td style="text-align:center"><span class="tag tag-up">&#9650; Improving</span></td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="openModal('edit')">&#9998;</button>
+            <button class="btn btn-outline btn-sm" onclick="openModal('delete')" style="color:var(--red)">&#10005;</button>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="ticker-sym" onclick="showPage('ticker-detail')">MSFT</span><br><span class="company">Microsoft Corp.</span></td>
+          <td>30</td>
+          <td style="text-align:right">$285.00</td><td style="text-align:right">$342.18</td>
+          <td style="text-align:right">$10,265.40</td>
+          <td style="text-align:right" class="up">+$54.90 (+0.54%)</td>
+          <td style="text-align:right" class="up">+$1,715.40</td>
+          <td style="text-align:right" class="up">+20.06%</td>
+          <td style="text-align:center"><span class="tag tag-up">&#9650; Improving</span></td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="openModal('edit')">&#9998;</button>
+            <button class="btn btn-outline btn-sm" onclick="openModal('delete')" style="color:var(--red)">&#10005;</button>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="ticker-sym" onclick="showPage('ticker-detail')">GOOGL</span><br><span class="company">Alphabet Inc.</span></td>
+          <td>20</td>
+          <td style="text-align:right">$138.50</td><td style="text-align:right">$162.74</td>
+          <td style="text-align:right">$3,254.80</td>
+          <td style="text-align:right" class="up">+$28.00 (+0.87%)</td>
+          <td style="text-align:right" class="up">+$484.80</td>
+          <td style="text-align:right" class="up">+17.50%</td>
+          <td style="text-align:center"><span class="tag tag-up">&#9650; Improving</span></td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="openModal('edit')">&#9998;</button>
+            <button class="btn btn-outline btn-sm" onclick="openModal('delete')" style="color:var(--red)">&#10005;</button>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="ticker-sym" onclick="showPage('ticker-detail')">TSLA</span><br><span class="company">Tesla Inc.</span></td>
+          <td>25</td>
+          <td style="text-align:right">$245.00</td><td style="text-align:right">$218.42</td>
+          <td style="text-align:right">$5,460.50</td>
+          <td style="text-align:right" class="down">−$87.50 (−1.58%)</td>
+          <td style="text-align:right" class="down">−$664.50</td>
+          <td style="text-align:right" class="down">−10.85%</td>
+          <td style="text-align:center"><span class="tag tag-down">&#9660; Declining</span></td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="openModal('edit')">&#9998;</button>
+            <button class="btn btn-outline btn-sm" onclick="openModal('delete')" style="color:var(--red)">&#10005;</button>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="ticker-sym" onclick="showPage('ticker-detail')">NVDA</span><br><span class="company">NVIDIA Corp.</span></td>
+          <td>40</td>
+          <td style="text-align:right">$480.00</td><td style="text-align:right">$673.36</td>
+          <td style="text-align:right">$26,934.40</td>
+          <td style="text-align:right" class="up">+$234.80 (+0.88%)</td>
+          <td style="text-align:right" class="up">+$7,734.40</td>
+          <td style="text-align:right" class="up">+40.28%</td>
+          <td style="text-align:center"><span class="tag tag-up">&#9650; Improving</span></td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="openModal('edit')">&#9998;</button>
+            <button class="btn btn-outline btn-sm" onclick="openModal('delete')" style="color:var(--red)">&#10005;</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Portfolio Value Chart -->
+  <div class="card">
+    <div class="card-title">Portfolio Value Over Time</div>
+    <div class="time-range">
+      <button>1W</button><button>1M</button><button class="active">3M</button><button>6M</button><button>YTD</button><button>1Y</button><button>All</button>
+    </div>
+    <svg class="line-chart" viewBox="0 0 800 260" preserveAspectRatio="none" style="height:260px">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent)" stop-opacity=".3"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient>
+      </defs>
+      <line x1="0" y1="180" x2="800" y2="170" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="6,4" opacity=".5"/>
+      <text x="700" y="166" fill="var(--muted)" font-size="11">Cost Basis $48.2k</text>
+      <path d="M0,200 C50,195 100,190 150,185 C200,178 250,170 300,155 C350,140 380,145 420,135 C460,120 500,110 550,95 C600,80 650,75 700,60 C740,50 770,45 800,40 L800,260 L0,260Z" fill="url(#g1)"/>
+      <path d="M0,200 C50,195 100,190 150,185 C200,178 250,170 300,155 C350,140 380,145 420,135 C460,120 500,110 550,95 C600,80 650,75 700,60 C740,50 770,45 800,40" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+      <text x="0" y="255" fill="var(--muted)" font-size="11">Dec 11</text>
+      <text x="190" y="255" fill="var(--muted)" font-size="11">Jan 11</text>
+      <text x="395" y="255" fill="var(--muted)" font-size="11">Feb 11</text>
+      <text x="750" y="255" fill="var(--muted)" font-size="11">Mar 11</text>
+      <text x="0" y="15" fill="var(--muted)" font-size="11">$56k</text>
+      <text x="0" y="135" fill="var(--muted)" font-size="11">$50k</text>
+      <text x="0" y="210" fill="var(--muted)" font-size="11">$46k</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  PAGE 2: PORTFOLIO HISTORY                             -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="page-history" class="page">
+  <h2 style="margin-bottom:20px">Portfolio Performance History</h2>
+
+  <div class="card" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <div class="time-range" style="margin:0">
+      <button>1W</button><button>1M</button><button class="active">3M</button><button>6M</button><button>YTD</button><button>1Y</button><button>All</button>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)">
+      Compare dates:
+      <input type="date" value="2025-12-11" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:13px">
+      <span>to</span>
+      <input type="date" value="2026-03-11" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:13px">
+      <button class="btn btn-primary btn-sm">Compare</button>
+    </div>
+  </div>
+
+  <!-- Value vs Cost Chart -->
+  <div class="chart-box">
+    <div class="card-title">Portfolio Value vs. Cost Basis</div>
+    <svg class="line-chart" viewBox="0 0 800 260" preserveAspectRatio="none" style="width:100%;height:260px">
+      <defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--green)" stop-opacity=".15"/><stop offset="100%" stop-color="var(--green)" stop-opacity="0"/></linearGradient></defs>
+      <path d="M0,200 C100,190 200,178 300,155 C400,135 500,110 600,80 C700,60 800,40 800,40 L800,170 C700,172 600,174 500,176 C400,178 300,180 200,182 C100,184 0,185 0,185Z" fill="url(#gg)" opacity=".5"/>
+      <path d="M0,185 C100,184 200,182 300,180 C400,178 500,176 600,174 C700,172 800,170 800,170" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="6,4"/>
+      <path d="M0,200 C100,190 200,178 300,155 C400,135 500,110 600,80 C700,60 770,45 800,40" fill="none" stroke="var(--green)" stroke-width="2.5"/>
+      <text x="660" y="55" fill="var(--green)" font-size="12" font-weight="600">Market Value</text>
+      <text x="660" y="165" fill="var(--muted)" font-size="12">Cost Basis</text>
+      <text x="0" y="255" fill="var(--muted)" font-size="11">Dec 11</text>
+      <text x="395" y="255" fill="var(--muted)" font-size="11">Feb 11</text>
+      <text x="750" y="255" fill="var(--muted)" font-size="11">Mar 11</text>
+    </svg>
+  </div>
+
+  <!-- Period Summary -->
+  <div class="card">
+    <div class="card-title">Period Summary (Dec 11 2025 — Mar 11 2026)</div>
+    <table>
+      <thead><tr><th>Metric</th><th style="text-align:right">Value</th></tr></thead>
+      <tbody>
+        <tr><td>Value at Start</td><td style="text-align:right">$46,120.00</td></tr>
+        <tr><td>Value at End</td><td style="text-align:right">$54,832.50</td></tr>
+        <tr><td>Net Change</td><td style="text-align:right" class="up">+$8,712.50</td></tr>
+        <tr><td>Net Change %</td><td style="text-align:right" class="up">+18.89%</td></tr>
+        <tr><td>Best Day</td><td style="text-align:right" class="up">Jan 22 — +$1,240.00 (+2.4%)</td></tr>
+        <tr><td>Worst Day</td><td style="text-align:right" class="down">Feb 3 — −$890.00 (−1.7%)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  PAGE 3: FINANCIAL STATUS (PORTFOLIO)                  -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="page-status" class="page">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <h2>Financial Status — Full Portfolio</h2>
+    <div class="trend-badge trend-improving">&#9650; Improving</div>
+  </div>
+
+  <div class="summary-row">
+    <div class="card summary-card">
+      <div class="card-title">Market Value</div>
+      <div class="val">$54,832.50</div>
+    </div>
+    <div class="card summary-card">
+      <div class="card-title">Total Invested</div>
+      <div class="val">$48,250.00</div>
+    </div>
+    <div class="card summary-card">
+      <div class="card-title">Unrealized Gain/Loss</div>
+      <div class="val up">+$6,582.50</div>
+      <div class="label up">+13.64%</div>
+    </div>
+    <div class="card summary-card">
+      <div class="card-title">Net Gain/Loss</div>
+      <div class="val up">+$6,582.50</div>
+      <div class="label up">+13.64%</div>
+    </div>
+  </div>
+
+  <!-- Scorecard -->
+  <div class="card">
+    <div class="card-title">Performance Scorecard</div>
+    <div class="status-grid" style="margin-top:12px">
+      <div class="score-card"><div class="period">Today</div><div class="score-val up">+$312.40</div><div class="score-pct up">+0.57%</div></div>
+      <div class="score-card"><div class="period">This Week</div><div class="score-val up">+$1,042.80</div><div class="score-pct up">+1.94%</div></div>
+      <div class="score-card"><div class="period">This Month</div><div class="score-val up">+$2,180.60</div><div class="score-pct up">+4.14%</div></div>
+      <div class="score-card"><div class="period">Year to Date</div><div class="score-val up">+$5,940.20</div><div class="score-pct up">+12.15%</div></div>
+    </div>
+  </div>
+
+  <!-- Breakdown -->
+  <div class="card">
+    <div class="card-title">Gain/Loss by Ticker (largest gain → largest loss)</div>
+    <div style="margin-top:12px">
+      <div class="breakdown-row"><span><strong>NVDA</strong> &nbsp;NVIDIA Corp.</span><span class="up" style="font-weight:600">+$7,734.40 (+40.28%)</span></div>
+      <div><div class="breakdown-bar" style="width:100%;background:var(--green)"></div></div>
+      <div class="breakdown-row"><span><strong>AAPL</strong> &nbsp;Apple Inc.</span><span class="up" style="font-weight:600">+$1,817.50 (+25.60%)</span></div>
+      <div><div class="breakdown-bar" style="width:23%;background:var(--green)"></div></div>
+      <div class="breakdown-row"><span><strong>MSFT</strong> &nbsp;Microsoft Corp.</span><span class="up" style="font-weight:600">+$1,715.40 (+20.06%)</span></div>
+      <div><div class="breakdown-bar" style="width:22%;background:var(--green)"></div></div>
+      <div class="breakdown-row"><span><strong>GOOGL</strong> &nbsp;Alphabet Inc.</span><span class="up" style="font-weight:600">+$484.80 (+17.50%)</span></div>
+      <div><div class="breakdown-bar" style="width:6%;background:var(--green)"></div></div>
+      <div class="breakdown-row"><span><strong>TSLA</strong> &nbsp;Tesla Inc.</span><span class="down" style="font-weight:600">−$664.50 (−10.85%)</span></div>
+      <div><div class="breakdown-bar" style="width:8%;background:var(--red)"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  PAGE 4: PER-TICKER DETAIL (AAPL example)             -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="page-ticker-detail" class="page">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+    <button class="btn btn-outline btn-sm" onclick="showPage('dashboard')">&#8592; Back</button>
+    <h2>AAPL — Apple Inc.</h2>
+    <span class="trend-badge trend-improving" style="font-size:13px">&#9650; Improving</span>
+    <button class="btn btn-primary btn-sm" onclick="showPage('ticker-status')" style="margin-left:auto">Check Financial Status</button>
+  </div>
+
+  <div class="summary-row">
+    <div class="card summary-card">
+      <div class="card-title">Current Price</div>
+      <div class="val">$178.35</div>
+      <div class="label up">+$1.65 (+0.93%) today</div>
+    </div>
+    <div class="card summary-card">
+      <div class="card-title">Your Shares</div>
+      <div class="val">50</div>
+      <div class="label">Avg cost: $142.00</div>
+    </div>
+    <div class="card summary-card">
+      <div class="card-title">Market Value</div>
+      <div class="val">$8,917.50</div>
+      <div class="label">16.3% of portfolio</div>
+    </div>
+    <div class="card summary-card">
+      <div class="card-title">Total Gain/Loss</div>
+      <div class="val up">+$1,817.50</div>
+      <div class="label up">+25.60%</div>
+    </div>
+  </div>
+
+  <!-- Value Chart -->
+  <div class="chart-box">
+    <div class="card-title">Holding Value vs. Cost Basis</div>
+    <div class="time-range" style="margin-top:8px">
+      <button>1M</button><button class="active">3M</button><button>6M</button><button>YTD</button><button>1Y</button><button>All</button>
+    </div>
+    <svg class="line-chart" viewBox="0 0 800 220" preserveAspectRatio="none" style="width:100%;height:220px">
+      <defs><linearGradient id="gt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--blue)" stop-opacity=".2"/><stop offset="100%" stop-color="var(--blue)" stop-opacity="0"/></linearGradient></defs>
+      <line x1="0" y1="150" x2="800" y2="150" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="6,4" opacity=".5"/>
+      <text x="660" y="145" fill="var(--muted)" font-size="11">Cost: $7,100</text>
+      <path d="M0,160 C60,155 120,148 180,140 C240,135 300,130 360,118 C420,110 480,100 540,90 C600,82 660,70 720,60 C760,52 800,48 800,48 L800,220 L0,220Z" fill="url(#gt)"/>
+      <path d="M0,160 C60,155 120,148 180,140 C240,135 300,130 360,118 C420,110 480,100 540,90 C600,82 660,70 720,60 C760,52 800,48 800,48" fill="none" stroke="var(--blue)" stroke-width="2.5"/>
+      <circle cx="40" cy="158" r="6" fill="var(--green)" stroke="var(--card)" stroke-width="2"/><text x="50" y="170" fill="var(--green)" font-size="10">Buy 30</text>
+      <circle cx="300" cy="130" r="6" fill="var(--green)" stroke="var(--card)" stroke-width="2"/><text x="310" y="142" fill="var(--green)" font-size="10">Buy 20</text>
+      <text x="660" y="44" fill="var(--blue)" font-size="12" font-weight="600">$8,917</text>
+      <text x="0" y="215" fill="var(--muted)" font-size="11">Dec</text>
+      <text x="380" y="215" fill="var(--muted)" font-size="11">Feb</text>
+      <text x="760" y="215" fill="var(--muted)" font-size="11">Mar</text>
+    </svg>
+  </div>
+
+  <!-- Transaction History -->
+  <div class="card">
+    <div class="card-title">Transaction History</div>
+    <div style="margin-top:12px">
+      <div class="tx-item">
+        <div><span class="tx-type tx-buy">BUY</span> &nbsp;Oct 15, 2025</div>
+        <div>30 shares @ $138.00</div>
+        <div style="color:var(--muted)">Fees: $4.95</div>
+        <div style="font-size:13px;color:var(--muted)">Running total: 30 shares</div>
+      </div>
+      <div class="tx-item">
+        <div><span class="tx-type tx-buy">BUY</span> &nbsp;Jan 8, 2026</div>
+        <div>20 shares @ $148.00</div>
+        <div style="color:var(--muted)">Fees: $4.95</div>
+        <div style="font-size:13px;color:var(--muted)">Running total: 50 shares</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PNL Timeline -->
+  <div class="chart-box">
+    <div class="card-title">Gain/Loss Timeline</div>
+    <div id="pnl-bars" class="chart-placeholder" style="height:160px"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  PAGE 5: PER-TICKER FINANCIAL STATUS                   -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="page-ticker-status" class="page">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+    <button class="btn btn-outline btn-sm" onclick="showPage('ticker-detail')">&#8592; Back to AAPL</button>
+    <h2>Financial Status — AAPL</h2>
+    <span class="trend-badge trend-improving" style="font-size:13px">&#9650; Improving</span>
+  </div>
+
+  <div class="summary-row">
+    <div class="card summary-card"><div class="card-title">Shares Held</div><div class="val">50</div></div>
+    <div class="card summary-card"><div class="card-title">Avg Cost</div><div class="val">$142.00</div></div>
+    <div class="card summary-card"><div class="card-title">Current Price</div><div class="val">$178.35</div></div>
+    <div class="card summary-card"><div class="card-title">% of Portfolio</div><div class="val">16.3%</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Position Metrics</div>
+    <table style="margin-top:8px">
+      <tbody>
+        <tr><td>Day Range</td><td style="text-align:right">$176.20 — $179.10</td></tr>
+        <tr><td>52-Week High</td><td style="text-align:right">$198.23</td></tr>
+        <tr><td>52-Week Low</td><td style="text-align:right">$131.08</td></tr>
+        <tr><td>Unrealized Gain/Loss</td><td style="text-align:right" class="up">+$1,817.50 (+25.60%)</td></tr>
+        <tr><td>Volume</td><td style="text-align:right">48,230,100</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Performance Scorecard</div>
+    <div class="status-grid" style="margin-top:12px">
+      <div class="score-card"><div class="period">Today</div><div class="score-val up">+$82.50</div><div class="score-pct up">+0.93%</div></div>
+      <div class="score-card"><div class="period">This Week</div><div class="score-val up">+$215.00</div><div class="score-pct up">+2.47%</div></div>
+      <div class="score-card"><div class="period">This Month</div><div class="score-val up">+$490.00</div><div class="score-pct up">+5.82%</div></div>
+      <div class="score-card"><div class="period">Year to Date</div><div class="score-val up">+$1,340.00</div><div class="score-pct up">+17.68%</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  PAGE 6: EMPTY STATE (first-time user)                 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="page-empty" class="page">
+  <div class="empty-state">
+    <div class="icon">&#128200;</div>
+    <h2>Welcome to Chen's Stocks!</h2>
+    <p>You don't have any investments yet. Add your first ticker to start tracking your portfolio.</p>
+    <button class="btn btn-primary" onclick="openModal('add')" style="font-size:16px;padding:12px 32px">+ Add Your First Ticker</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  MODAL: ADD TICKER                                     -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="modal-add" class="modal-overlay">
+  <div class="modal">
+    <h2>Add a New Ticker</h2>
+    <div class="form-group">
+      <label>Ticker Symbol</label>
+      <input type="text" placeholder="e.g. AAPL, MSFT, TSLA" style="text-transform:uppercase">
+      <div class="form-hint">Enter the stock symbol — we'll look it up for you.</div>
+    </div>
+    <div class="form-group">
+      <label>Number of Shares</label>
+      <input type="number" placeholder="e.g. 50" min="0" step="any">
+      <div class="form-hint">How many shares did you buy?</div>
+    </div>
+    <div class="form-group">
+      <label>Price per Share ($)</label>
+      <input type="number" placeholder="e.g. 142.00" min="0" step="0.01">
+      <div class="form-hint">The price you paid for each share.</div>
+    </div>
+    <div class="form-group">
+      <label>Purchase Date</label>
+      <input type="date" value="2026-03-11">
+    </div>
+    <div class="form-group">
+      <label>Transaction Fees ($)</label>
+      <input type="number" placeholder="e.g. 4.95" min="0" step="0.01" value="0.00">
+      <div class="form-hint">Optional — broker fees for this purchase.</div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-outline" onclick="closeModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModals()">Add to Portfolio</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDIT TICKER -->
+<div id="modal-edit" class="modal-overlay">
+  <div class="modal">
+    <h2>Edit Position — AAPL</h2>
+    <div class="form-group"><label>Number of Shares</label><input type="number" value="50"></div>
+    <div class="form-group"><label>Average Price per Share ($)</label><input type="number" value="142.00" step="0.01"></div>
+    <div class="form-group"><label>Purchase Date</label><input type="date" value="2025-10-15"></div>
+    <div class="form-actions">
+      <button class="btn btn-outline" onclick="closeModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModals()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: DELETE CONFIRM -->
+<div id="modal-delete" class="modal-overlay">
+  <div class="modal">
+    <div class="confirm-box">
+      <h2>Remove Ticker?</h2>
+      <div class="ticker-big">AAPL</div>
+      <p>This will remove Apple Inc. from your portfolio and delete all associated transactions. This action cannot be undone.</p>
+      <div class="form-actions" style="justify-content:center">
+        <button class="btn btn-outline" onclick="closeModals()">Keep It</button>
+        <button class="btn btn-danger" onclick="closeModals()">Remove Ticker</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" style="display:none;position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--green);border-radius:10px;padding:12px 24px;color:var(--green);font-size:14px;font-weight:600;z-index:300;box-shadow:0 4px 24px rgba(0,0,0,.4)">
+  &#10003; Quotes refreshed — as of 3:42 PM
+</div>
+
+<script>
+// Navigation
+function showPage(name){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-links button').forEach(function(b){b.classList.remove('active')});
+  var map={dashboard:0,history:1,status:2};
+  if(map[name]!==undefined) document.querySelectorAll('.nav-links button')[map[name]].classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// Modals
+function openModal(type){closeModals();document.getElementById('modal-'+type).classList.add('show')}
+function closeModals(){document.querySelectorAll('.modal-overlay').forEach(function(m){m.classList.remove('show')})}
+document.querySelectorAll('.modal-overlay').forEach(function(m){
+  m.addEventListener('click',function(e){if(e.target===m)closeModals()})
+});
+
+// Toast
+function refreshQuotes(){
+  var t=document.getElementById('toast');t.style.display='block';
+  setTimeout(function(){t.style.display='none'},2500);
+}
+
+// Time range toggles
+document.querySelectorAll('.time-range').forEach(function(g){
+  g.querySelectorAll('button').forEach(function(b){
+    b.addEventListener('click',function(){
+      g.querySelectorAll('button').forEach(function(x){x.classList.remove('active')});
+      b.classList.add('active');
+    });
+  });
+});
+
+// PNL Bars
+(function(){
+  var c=document.getElementById('pnl-bars');
+  if(!c)return;
+  var vals=[-120,-80,-40,20,60,30,80,140,200,180,250,310,280,350,420,480,520,490,560,620,680,710,750,800,860,920,980,1050,1100,1180,1250,1300,1380,1450,1520,1600,1650,1700,1760,1818];
+  var max=Math.max.apply(null,vals.map(Math.abs));
+  vals.forEach(function(v){
+    var bar=document.createElement('div');
+    bar.className='chart-bar';
+    bar.style.height=Math.abs(v)/max*140+'px';
+    bar.style.background=v>=0?'var(--green)':'var(--red)';
+    bar.style.opacity='.7';
+    c.appendChild(bar);
+  });
+})();
+</script>
+</body>
+</html>

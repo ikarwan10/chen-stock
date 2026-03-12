@@ -1,4 +1,4 @@
-# Investment Portfolio Tracker — Market Requirements Document (MRD)
+# Chen's Stocks — Market Requirements Document (MRD)
 
 **Document Version:** 1.1  
 **Date:** March 11, 2026  
@@ -10,7 +10,7 @@
 
 ## 1. Executive Summary
 
-The Investment Portfolio Tracker is a personal finance application that enables investors to manage, monitor, and analyze their stock and securities portfolio in real time. The application provides live ticker quotes, full portfolio visibility, and comprehensive Profit & Loss (PNL) tracking over time.
+**Chen's Stocks** is a personal finance application that enables investors to manage, monitor, and analyze their stock and securities portfolio in real time. The application provides live ticker quotes, full portfolio visibility, and comprehensive Profit & Loss (PNL) tracking over time.
 
 ---
 
@@ -271,7 +271,7 @@ The Minimum Viable Product includes only **P0** features:
 - [x] **Per-ticker investment history** — full transaction list, value-over-time chart, PNL timeline
 - [x] **Portfolio performance history** — daily snapshots, value vs. cost basis chart, delta between dates
 - [x] **Financial status check** — one-click health snapshot for full portfolio or individual ticker, with trend indicator and performance scorecard
-- [x] Local data persistence (SQLite — including ticker snapshots and portfolio snapshots)
+- [x] Local data persistence (PostgreSQL on Render.com — including ticker snapshots and portfolio snapshots)
 - [x] Secure API key handling
 
 ### Out of Scope for MVP

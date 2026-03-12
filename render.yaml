@@ -1,0 +1,50 @@
+# render.yaml — Render.com Infrastructure as Code (Blueprint)
+# Docs: https://docs.render.com/blueprint-spec
+
+databases:
+  - name: chen-stocks-db
+    plan: free
+    databaseName: chen_stocks
+    user: chen
+
+services:
+  # Backend — FastAPI Web Service
+  - type: web
+    name: chen-stocks-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chen-stocks-db
+          property: connectionURI
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: chen-stocks-ui
+          property: url
+      - key: ALPHA_VANTAGE_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: QUOTE_CACHE_TTL
+        value: "60"
+    healthCheckPath: /api/health
+
+  # Frontend — React Static Site
+  - type: web
+    name: chen-stocks-ui
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/dist
+    plan: free
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: chen-stocks-api
+          property: url
