@@ -1,14 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getDashboard, refreshQuotes, deleteTicker } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import { getDashboard, refreshQuotes, deleteTicker, getPortfolioHistory } from '../services/api';
 import SummaryBar from '../components/SummaryBar';
 import HoldingsTable from '../components/HoldingsTable';
 import AddTickerModal from '../components/AddTickerModal';
 import EditTickerModal from '../components/EditTickerModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import EmptyState from '../components/EmptyState';
+import PnlChart from '../components/PnlChart';
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
+  const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
@@ -21,8 +25,12 @@ export default function Dashboard() {
   const fetchDashboard = useCallback(async () => {
     try {
       setError(null);
-      const res = await getDashboard();
+      const [res, hist] = await Promise.all([
+        getDashboard(),
+        getPortfolioHistory('3M').catch(() => ({ chart_data: [] })),
+      ]);
       setData(res);
+      setChartData(hist.chart_data || []);
     } catch (err) {
       setError('Failed to load dashboard. Is the backend running?');
     } finally {
@@ -115,11 +123,31 @@ export default function Dashboard() {
       ) : (
         <>
           <SummaryBar summary={data.summary} />
+          <div className="flex gap-2 mb-4">
+            <button onClick={() => navigate('/history')}
+              className="px-3 py-1.5 text-xs rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300">
+              Portfolio History
+            </button>
+            <button onClick={() => navigate('/status')}
+              className="px-3 py-1.5 text-xs rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300">
+              Financial Status
+            </button>
+            <button onClick={() => navigate('/transactions')}
+              className="px-3 py-1.5 text-xs rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300">
+              All Transactions
+            </button>
+          </div>
           <HoldingsTable
             holdings={data.holdings}
             onEdit={setEditTicker}
             onDelete={setDeletingTicker}
           />
+          {chartData.length > 0 && (
+            <div className="mt-6 space-y-2">
+              <h2 className="text-lg font-semibold">Portfolio P&L (3M)</h2>
+              <PnlChart data={chartData} />
+            </div>
+          )}
         </>
       )}
 

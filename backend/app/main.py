@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import Base, engine
-from app.api import tickers_router, quotes_router, transactions_router, dashboard_router
+from app.api import tickers_router, quotes_router, transactions_router, dashboard_router, history_router, status_router
 
 # Create all tables on startup
 Base.metadata.create_all(bind=engine)
@@ -31,6 +31,23 @@ app.include_router(tickers_router)
 app.include_router(quotes_router)
 app.include_router(transactions_router)
 app.include_router(dashboard_router)
+app.include_router(history_router)
+app.include_router(status_router)
+
+
+@app.on_event("startup")
+def startup_snapshot():
+    """Take a portfolio snapshot on app start if one doesn't exist for today."""
+    from app.database import SessionLocal
+    from app.services.snapshot_service import SnapshotService
+
+    db = SessionLocal()
+    try:
+        SnapshotService.take_snapshot(db)
+    except Exception:
+        pass
+    finally:
+        db.close()
 
 
 @app.get("/api/health")

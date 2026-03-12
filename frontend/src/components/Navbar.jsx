@@ -2,6 +2,9 @@ import { Link, useLocation } from 'react-router-dom';
 
 const links = [
   { to: '/', label: 'Dashboard' },
+  { to: '/history', label: 'History' },
+  { to: '/status', label: 'Status' },
+  { to: '/transactions', label: 'Transactions' },
 ];
 
 export default function Navbar() {

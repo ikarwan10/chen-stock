@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const fmt = (v) => Number(v).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 const pct = (v) => `${Number(v) >= 0 ? '+' : ''}${Number(v).toFixed(2)}%`;
@@ -9,6 +10,7 @@ const SORT_KEYS = ['symbol', 'quantity', 'avg_cost', 'current_price', 'market_va
 export default function HoldingsTable({ holdings, onEdit, onDelete }) {
   const [sortKey, setSortKey] = useState('symbol');
   const [sortAsc, setSortAsc] = useState(true);
+  const navigate = useNavigate();
 
   const sorted = [...holdings].sort((a, b) => {
     let av = a[sortKey], bv = b[sortKey];
@@ -70,9 +72,9 @@ export default function HoldingsTable({ holdings, onEdit, onDelete }) {
         </thead>
         <tbody className="divide-y divide-gray-800/50">
           {sorted.map((h) => (
-            <tr key={h.ticker_id} className="hover:bg-gray-800/40 transition-colors">
+            <tr key={h.ticker_id} className="hover:bg-gray-800/40 transition-colors cursor-pointer" onClick={() => navigate(`/ticker/${h.ticker_id}`)}>
               <td className="px-3 py-3 font-medium">
-                <span className="text-indigo-400">{h.symbol}</span>
+                <span className="text-indigo-400 hover:underline">{h.symbol}</span>
                 <span className="ml-2 text-gray-500 text-xs">{h.name}</span>
               </td>
               <td className="px-3 py-3">{Number(h.quantity).toFixed(2)}</td>
@@ -90,7 +92,7 @@ export default function HoldingsTable({ holdings, onEdit, onDelete }) {
               </td>
               <td className="px-3 py-3 text-right">
                 <button
-                  onClick={() => onEdit(h)}
+                  onClick={(e) => { e.stopPropagation(); onEdit(h); }}
                   className="text-gray-400 hover:text-indigo-400 p-1"
                   title="Edit"
                 >
@@ -100,7 +102,7 @@ export default function HoldingsTable({ holdings, onEdit, onDelete }) {
                   </svg>
                 </button>
                 <button
-                  onClick={() => onDelete(h)}
+                  onClick={(e) => { e.stopPropagation(); onDelete(h); }}
                   className="text-gray-400 hover:text-red-400 p-1 ml-1"
                   title="Remove"
                 >
